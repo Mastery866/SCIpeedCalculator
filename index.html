@@ -245,40 +245,44 @@ restartBtn.addEventListener('click', () => {
 // Explanations with variable highlighting
 const exp = {
   userName: `1. Program prints the message asking for your name.<br>
-2. <code>scanner.nextLine()</code> waits for you to type something.<br>
+2. <code>userName = scanner.nextLine()</code> waits for you to type something.<br>
 3. What you typed is stored inside the variable <span class="var">userName</span>.`,
 
   section: `1. Program shows the message asking for your section.<br>
-2. <code>scanner.nextLine()</code> waits for your input.<br>
+2. <code>section = scanner.nextLine()</code> waits for your input.<br>
 3. The text you typed is saved in <span class="var">section</span>.`,
 
   choice: `1. Program prints a message asking you to choose a calculation.<br>
-2. <code>scanner.nextInt()</code> waits for you to type a number.<br>
+2. <code>choice = scanner.nextInt()</code> waits for you to type a number.<br>
 3. That number is saved inside <span class="var">choice</span>.<br>
 4. This decides which part of the program will run.`,
 
-  speed_distance: `1. Program asks for the distance.<br>
-2. <code>scanner.nextDouble()</code> reads the number you type.<br>
+  speed_distance: `1. Program prints the message asking for distance.<br>
+2. <code>distance = scanner.nextDouble()</code> reads the number you type.<br>
 3. That number is saved in <span class="var">distance</span>.`,
 
   speed_time: `1. Program asks for the time.<br>
-2. <code>scanner.nextDouble()</code> reads the number you type.<br>
+2. <code>time = scanner.nextDouble()</code> reads the number you type.<br>
 3. That number is saved in <span class="var">time</span>.<br>
 4. Formula is applied: <span class="var">speed</span> = <span class="var">distance</span> ÷ <span class="var">time</span>.`,
 
-  distance_speed: `1. Program asks for the speed.<br>
-2. You type a number and it is saved in <span class="var">speed</span>.`,
+  distance_speed: `1. Program prints the message asking for the speed.<br>
+2. <code>speed = scanner.nextLine()</code> waits for your input.<br>
+3. You type a number and it is saved in <span class="var">speed</span>.`,
 
-  distance_time: `1. Program asks for the time.<br>
-2. You type a number and it is saved in <span class="var">time</span>.<br>
-3. Formula is applied: <span class="var">distance</span> = <span class="var">speed</span> × <span class="var">time</span>.`,
+  distance_time: `1. Program prints the message asking for the time.<br>
+2. <code>time = scanner.nextLine()</code> waits for your input.<br>
+3. You type a number and it is saved in <span class="var">time</span>.<br>
+4. Formula is applied: <span class="var">distance</span> = <span class="var">speed</span> × <span class="var">time</span>.`,
 
-  time_distance: `1. Program asks for the distance.<br>
-2. You type a number and it is saved in <span class="var">distance</span>.`,
+  time_distance: `1. Program prints the message asking for distance.<br>
+2. <code>distance = scanner.nextDouble()</code> reads the number you type.<br>
+3. You type a number and it is saved in <span class="var">distance</span>.`,
 
-  time_speed: `1. Program asks for the speed.<br>
-2. You type a number and it is saved in <span class="var">speed</span>.<br>
-3. Formula is applied: <span class="var">time</span> = <span class="var">distance</span> ÷ <span class="var">speed</span>.`
+  time_speed: `1. Program prints the message asking for the speed.<br>
+2. <code>speed = scanner.nextLine()</code> waits for your input.<br>
+3. You type a number and it is saved in <span class="var">speed</span>.<br>
+4. Formula is applied: <span class="var">time</span> = <span class="var">distance</span> ÷ <span class="var">speed</span>.`
 };
 
 // Flow
@@ -347,8 +351,10 @@ choice = scanner.nextInt();`;
             appendToConsole(`Speed = ${userData.distance} / ${userData.time}`);
             appendToConsole(`Answer: ${speed} units/sec\n`);
             showEndInfo();
-          }, exp.speed_time, "scanner.nextDouble();", "time");
-        }, exp.speed_distance, "scanner.nextDouble();", "distance");
+          }, exp.speed_time, `System.out.print("Enter Time:");
+time = scanner.nextDouble();`, "time");
+        }, exp.speed_distance, `System.out.print("Enter Distance:
+distance = scanner.nextDouble();`, "distance");
 
       } else if (userData.calculationType === "distance") {
         promptInline("Enter Speed:", (speedStr) => {
@@ -367,8 +373,10 @@ choice = scanner.nextInt();`;
             appendToConsole(`Distance = ${userData.speed} * ${userData.time}`);
             appendToConsole(`Answer: ${distance} units\n`);
             showEndInfo();
-          }, exp.distance_time, "scanner.nextDouble();", "time");
-        }, exp.distance_speed, "scanner.nextDouble();", "speed");
+          }, exp.distance_time, `System.out.print("Enter Time:");
+time = scanner.nextDouble();`, "time");
+        }, exp.distance_speed, `System.out.print("Enter Speed:");
+speed = scanner.nextDouble();`, "speed");
 
       } else if (userData.calculationType === "time") {
         promptInline("Enter Distance:", (distStr) => {
@@ -387,8 +395,10 @@ choice = scanner.nextInt();`;
             appendToConsole(`Time = ${userData.distance} / ${userData.speed}`);
             appendToConsole(`Answer: ${time} sec\n`);
             showEndInfo();
-          }, exp.time_speed, "scanner.nextDouble();", "speed");
-        }, exp.time_distance, "scanner.nextDouble();", "distance");
+          }, exp.time_speed, `System.out.print("Enter Speed:");
+speed = scanner.nextDouble();`, "speed");
+        }, exp.time_distance, `System.out.print("Enter Distance:
+distance = scanner.nextDouble();`, "distance");
       }
       break;
   }
