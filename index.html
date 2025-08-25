@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SCIpeed Calculator - Beginner Friendly</title>
+<style>
+  body {
+    font-family: monospace;
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 10px;
+  }
+  #console {
+    background-color: #222;
+    color: #0f0;
+    padding: 10px;
+    border-radius: 8px;
+    min-height: 300px;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .prompt-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .prompt-text {
+    font-size: 1.2em;
+    margin-right: 8px;
+  }
+  #inlineInput {
+    font-size: 1.2em;
+    padding: 8px;
+    border: none;
+    background-color: #222;
+    color: #0f0;
+    outline: none;
+    min-width: 60%;
+    max-width: 100%;
+  }
+  #promptDisplay {
+    margin-top: 15px;
+    padding: 10px;
+    border: 2px solid #0f0;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+  #promptDisplay h3 {
+    margin-top: 0;
+  }
+  #codeSnippet {
+    background: #eee;
+    padding: 8px;
+    border-radius: 6px;
+  }
+  #variableTable {
+    margin-top: 15px;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9em;
+  }
+  #variableTable th, #variableTable td {
+    border: 1px solid #333;
+    padding: 6px;
+    text-align: left;
+  }
+  #restartBtn {
+    margin-top: 20px;
+    padding: 8px 16px;
+    border: none;
+    background: #222;
+    color: #0f0;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  #restartBtn:hover {
+    background: #444;
+  }
+  /* Highlight variables */
+  .var {
+    color: rgb(255, 18, 18);
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div id="orientationMessage" style="text-align:center;">
+  <h2>Please rotate your device to landscape mode</h2>
+  <p>For the best experience, turn your device to landscape orientation.</p>
+</div>
+
+<div id="content" style="display:none;">
+<h2>SCIpeed Calculator - Beginner Friendly</h2>
+<div id="console"></div>
+
+<!-- Code + Explanation -->
+<div id="promptDisplay" style="display:none;">
+  <h3>Code Prompt</h3>
+  <pre id="codeSnippet"></pre>
+  <div id="promptText"></div>
+  <div id="userInputDisplay" style="margin-top:10px;"></div>
+  <div id="explanation" style="margin-top:10px; font-style:italic; color:#333;"></div>
+</div>
+
+<!-- Live Variable Table -->
+<div id="variableView" style="display:none;">
+  <h3>Live Variable Table</h3>
+  <table id="variableTable">
+    <thead>
+      <tr><th>Variable</th><th>Value</th></tr>
+    </thead>
+    <tbody id="variableBody"></tbody>
+  </table>
+</div>
+
+
+<button id="restartBtn" style="display:none;">🔄 Restart</button>
+</div>
+
+<script>
+// Orientation
+const orientationMessage = document.getElementById('orientationMessage');
+const contentDiv = document.getElementById('content');
+function checkOrientation() {
+  if (window.innerWidth > window.innerHeight) {
+    orientationMessage.style.display = 'none';
+    contentDiv.style.display = 'block';
+  } else {
+    orientationMessage.style.display = 'flex';
+    contentDiv.style.display = 'none';
+  }
+}
+checkOrientation();
+window.addEventListener('resize', checkOrientation);
+
+// Elements
+const consoleDiv = document.getElementById('console');
+const codeSnippetPre = document.getElementById('codeSnippet');
+const promptTextDiv = document.getElementById('promptText');
+const userInputDiv = document.getElementById('userInputDisplay');
+const explanationDiv = document.getElementById('explanation');
+const variableView = document.getElementById('variableView');
+const variableBody = document.getElementById('variableBody');
+const restartBtn = document.getElementById('restartBtn');
+
+// State
+let state = 0;
+let userData = {
+  userName: '',
+  section: '',
+  calculationType: '',
+  distance: 0,
+  time: 0,
+  speed: 0
+};
+
+const groupMembers = [
+  "Rivera, Venus Jasmin Mag-Isa",
+  "Agustin, Kian Erwin Sta. Maria",
+  "Balani, Aisha Steff Javate",
+  "Pangilinan, Clive Matthew Dela Cruz",
+  "Peralta, Naomi Khin Punzal",
+  "Atazar, Amia Jean Gadiano",
+  "Manastalas, Rhian Jane Serna",
+  "Peralta, Sam De Lupio"
+];
+
+// Console output
+function appendToConsole(text) {
+  consoleDiv.innerHTML += text + '\n';
+  consoleDiv.scrollTop = consoleDiv.scrollHeight;
+}
+
+// Show prompt
+function showCodePrompt(promptText, codeText, explanationText) {
+  document.getElementById('promptDisplay').style.display = 'block';
+  codeSnippetPre.textContent = codeText;
+  promptTextDiv.innerText = promptText;
+  userInputDiv.innerHTML = '';
+  explanationDiv.innerHTML = explanationText;
+}
+
+// Update variable table
+function updateVariableTable() {
+  variableView.style.display = 'block';
+  variableBody.innerHTML = '';
+  for (let key in userData) {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${key}</td><td>${userData[key]}</td>`;
+    variableBody.appendChild(row);
+  }
+}
+
+// Input prompt
+function promptInline(promptText, callback, explanationText, codeText, variableKey) {
+  showCodePrompt(promptText, codeText, explanationText);
+  const lineDiv = document.createElement('div');
+  lineDiv.className = 'prompt-line';
+
+  const promptSpan = document.createElement('span');
+  promptSpan.className = 'prompt-text';
+  promptSpan.innerText = promptText;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = 'inlineInput';
+
+  lineDiv.appendChild(promptSpan);
+  lineDiv.appendChild(input);
+  consoleDiv.appendChild(lineDiv);
+  input.focus();
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = input.value.trim();
+      lineDiv.innerHTML = `<strong>${promptText}</strong> ${val}`;
+      userInputDiv.innerHTML = `<strong>User Input:</strong> ${val}`;
+
+      if (variableKey) {
+        userData[variableKey] = isNaN(val) ? val : parseFloat(val);
+        updateVariableTable();
+      }
+      callback(val);
+    }
+  });
+}
+
+// Restart
+restartBtn.addEventListener('click', () => {
+  consoleDiv.innerHTML = '';
+  variableBody.innerHTML = '';
+  variableView.style.display = 'none';
+  restartBtn.style.display = 'none';
+  state = 0;
+  userData = { userName:'', section:'', calculationType:'', distance:0, time:0, speed:0 };
+  run();
+});
+
+// Explanations with variable highlighting
+const exp = {
+  userName: `1. Program prints the message asking for your name.<br>
+2. <code>scanner.nextLine()</code> waits for you to type something.<br>
+3. What you typed is stored inside the variable <span class="var">userName</span>.`,
+
+  section: `1. Program shows the message asking for your section.<br>
+2. <code>scanner.nextLine()</code> waits for your input.<br>
+3. The text you typed is saved in <span class="var">section</span>.`,
+
+  choice: `1. Program prints a message asking you to choose a calculation.<br>
+2. <code>scanner.nextInt()</code> waits for you to type a number.<br>
+3. That number is saved inside <span class="var">choice</span>.<br>
+4. This decides which part of the program will run.`,
+
+  speed_distance: `1. Program asks for the distance.<br>
+2. <code>scanner.nextDouble()</code> reads the number you type.<br>
+3. That number is saved in <span class="var">distance</span>.`,
+
+  speed_time: `1. Program asks for the time.<br>
+2. <code>scanner.nextDouble()</code> reads the number you type.<br>
+3. That number is saved in <span class="var">time</span>.<br>
+4. Formula is applied: <span class="var">speed</span> = <span class="var">distance</span> ÷ <span class="var">time</span>.`,
+
+  distance_speed: `1. Program asks for the speed.<br>
+2. You type a number and it is saved in <span class="var">speed</span>.`,
+
+  distance_time: `1. Program asks for the time.<br>
+2. You type a number and it is saved in <span class="var">time</span>.<br>
+3. Formula is applied: <span class="var">distance</span> = <span class="var">speed</span> × <span class="var">time</span>.`,
+
+  time_distance: `1. Program asks for the distance.<br>
+2. You type a number and it is saved in <span class="var">distance</span>.`,
+
+  time_speed: `1. Program asks for the speed.<br>
+2. You type a number and it is saved in <span class="var">speed</span>.<br>
+3. Formula is applied: <span class="var">time</span> = <span class="var">distance</span> ÷ <span class="var">speed</span>.`
+};
+
+// Flow
+function run() {
+  switch (state) {
+    case 0:
+      appendToConsole("************************************************************************");
+      appendToConsole("*                                                                      *");
+      appendToConsole("*                      Welcome to SCIpeed Calculator!                  *");
+      appendToConsole("*    I can help you calculate Speed, Distance, and Time efficiently!   *");
+      appendToConsole("*                                                                      *");
+      appendToConsole("************************************************************************\n");
+      setTimeout(() => {
+        const javaCode =
+`System.out.print("Please enter your name: ");
+userName = scanner.nextLine();`;
+        promptInline("Please enter your name:", (userName) => {
+          userData.userName = userName;
+          updateVariableTable();
+          state++;
+          run();
+        }, exp.userName, javaCode, "userName");
+      }, 300);
+      break;
+
+    case 1:
+      const javaCodeSection =
+`System.out.print("Enter your section: ");
+section = scanner.nextLine();`;
+      promptInline("Enter your section:", (sectionInput) => {
+        userData.section = sectionInput;
+        updateVariableTable();
+        appendToConsole(`\nHello ${userData.userName}, of section ${userData.section}!\n`);
+        appendToConsole("1. Calculate Speed");
+        appendToConsole("2. Calculate Distance");
+        appendToConsole("3. Calculate Time\n");
+
+        const javaChoiceCode =
+`System.out.print("Select calculation: ");
+choice = scanner.nextInt();`;
+        promptInline("Please select (1-3):", (choice) => {
+          if (choice === "1") userData.calculationType = "speed";
+          else if (choice === "2") userData.calculationType = "distance";
+          else if (choice === "3") userData.calculationType = "time";
+          state = 3;
+          run();
+        }, exp.choice, javaChoiceCode, "calculationType");
+      }, exp.section, javaCodeSection, "section");
+      break;
+
+    case 3:
+      if (userData.calculationType === "speed") {
+        promptInline("Enter Distance:", (distStr) => {
+          userData.distance = parseFloat(distStr);
+          updateVariableTable();
+
+          promptInline("Enter Time:", (timeStr) => {
+            userData.time = parseFloat(timeStr);
+            updateVariableTable();
+
+            const speed = userData.distance / userData.time;
+            userData.speed = speed;
+            updateVariableTable();
+
+            appendToConsole("\n--- Speed Calculation ---");
+            appendToConsole(`Speed = ${userData.distance} / ${userData.time}`);
+            appendToConsole(`Answer: ${speed} units/sec\n`);
+            showEndInfo();
+          }, exp.speed_time, "scanner.nextDouble();", "time");
+        }, exp.speed_distance, "scanner.nextDouble();", "distance");
+
+      } else if (userData.calculationType === "distance") {
+        promptInline("Enter Speed:", (speedStr) => {
+          userData.speed = parseFloat(speedStr);
+          updateVariableTable();
+
+          promptInline("Enter Time:", (timeStr) => {
+            userData.time = parseFloat(timeStr);
+            updateVariableTable();
+
+            const distance = userData.speed * userData.time;
+            userData.distance = distance;
+            updateVariableTable();
+
+            appendToConsole("\n--- Distance Calculation ---");
+            appendToConsole(`Distance = ${userData.speed} * ${userData.time}`);
+            appendToConsole(`Answer: ${distance} units\n`);
+            showEndInfo();
+          }, exp.distance_time, "scanner.nextDouble();", "time");
+        }, exp.distance_speed, "scanner.nextDouble();", "speed");
+
+      } else if (userData.calculationType === "time") {
+        promptInline("Enter Distance:", (distStr) => {
+          userData.distance = parseFloat(distStr);
+          updateVariableTable();
+
+          promptInline("Enter Speed:", (speedStr) => {
+            userData.speed = parseFloat(speedStr);
+            updateVariableTable();
+
+            const time = userData.distance / userData.speed;
+            userData.time = time;
+            updateVariableTable();
+
+            appendToConsole("\n--- Time Calculation ---");
+            appendToConsole(`Time = ${userData.distance} / ${userData.speed}`);
+            appendToConsole(`Answer: ${time} sec\n`);
+            showEndInfo();
+          }, exp.time_speed, "scanner.nextDouble();", "speed");
+        }, exp.time_distance, "scanner.nextDouble();", "distance");
+      }
+      break;
+  }
+}
+
+function showEndInfo() {
+  appendToConsole(`Thank you for using SCIpeed Calculator, ${userData.userName}!`);
+  groupMembers.forEach(m => appendToConsole(m));
+  restartBtn.style.display = "block";
+}
+
+// Start
+run();
+</script>
+</body>
+</html>
